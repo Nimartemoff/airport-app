@@ -4,4 +4,15 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+  
+  <servlet>
+    <servlet-name>flight</servlet-name>
+    <servlet-class>FlightServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>flight</servlet-name>
+    <url-pattern>/flight</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
