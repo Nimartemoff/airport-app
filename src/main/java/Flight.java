@@ -1,7 +1,7 @@
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class Flight {
+public class Flight implements Comparable<Flight> {
 	private String departureAirport;
 	private String arrivalAirport;
 	private LocalDate departureDate;
@@ -44,5 +44,9 @@ public class Flight {
 		this.arrivalAirport = arrivalAirport;
 		this.departureDate = departureDate;
 		this.cost = cost;
+	}
+
+	public int compareTo(Flight o) {
+		return getCost().compareTo(o.getCost());
 	}
 }
