@@ -47,6 +47,11 @@ public class Flight implements Comparable<Flight> {
 	}
 
 	public int compareTo(Flight o) {
+		if (getCost() == o.getCost()) return getDepartureDate().compareTo(o.getDepartureDate());
 		return getCost().compareTo(o.getCost());
+	}
+	
+	public String toString() {
+		return getCost().toString();
 	}
 }
