@@ -1,10 +1,11 @@
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 public class Flight implements Comparable<Flight> {
+	private int flightId;
 	private String departureAirport;
 	private String arrivalAirport;
-	private LocalDate departureDate;
+	private OffsetDateTime departureDate;
 	private BigDecimal cost;
 	
 	public String getDepartureAirport() {
@@ -23,11 +24,11 @@ public class Flight implements Comparable<Flight> {
 		this.arrivalAirport = arrivalAirport;
 	}
 	
-	public LocalDate getDepartureDate() {
+	public OffsetDateTime getDepartureDate() {
 		return departureDate;
 	}
 	
-	public void setDepartureDate(LocalDate departureDate) {
+	public void setDepartureDate(OffsetDateTime departureDate) {
 		this.departureDate = departureDate;
 	}
 	
@@ -39,7 +40,8 @@ public class Flight implements Comparable<Flight> {
 		this.cost = cost;
 	}
 	
-	public Flight(String departureAirport, String arrivalAirport, LocalDate departureDate, BigDecimal cost) {
+	public Flight(int flightId, String departureAirport, String arrivalAirport, OffsetDateTime departureDate, BigDecimal cost) {
+		this.flightId = flightId;
 		this.departureAirport = departureAirport;
 		this.arrivalAirport = arrivalAirport;
 		this.departureDate = departureDate;

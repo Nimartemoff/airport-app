@@ -12,6 +12,9 @@ public class FlightServlet extends HttpServlet {
 		String arrivalAirport = request.getParameter("arrivalairport");
 		String departureDate = request.getParameter("departuredate");
 		
+		FlightGraph flightGraph = FlightDB.selectFlightGraph();
+		System.out.println(flightGraph.findPaths(departureAirport, arrivalAirport));
+		
 		PrintWriter out = response.getWriter();
 		try {
 			out.println("<p>Departure airport: " + departureAirport + "</p>" +
