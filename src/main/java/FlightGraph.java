@@ -1,3 +1,4 @@
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -6,41 +7,49 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class FlightGraph {
-	private HashMap<String, HashMap<String, PriorityQueue<Flight>>> adjMap;
+	private HashMap<String, HashMap<OffsetDateTime, HashMap<String, PriorityQueue<Flight>>>> adjMap;
 	
 	public FlightGraph() {
-		adjMap = new HashMap<String, HashMap<String, PriorityQueue<Flight>>>();
+		adjMap = new HashMap<String, HashMap<OffsetDateTime, HashMap<String, PriorityQueue<Flight>>>>();
 	}
 	
 	public void addFlight(Flight flight) {
 		if (!adjMap.containsKey(flight.getDepartureAirport())) {
-			HashMap<String, PriorityQueue<Flight>> nestedMap = new HashMap<String, PriorityQueue<Flight>>();
 			PriorityQueue<Flight> pq = new PriorityQueue<Flight>();
 			pq.add(flight);
-			nestedMap.put(flight.getArrivalAirport(), pq);
+			HashMap<String, PriorityQueue<Flight>> innerNestedMap = new HashMap<String, PriorityQueue<Flight>>();
+			innerNestedMap.put(flight.getArrivalAirport(), pq);
+			HashMap<OffsetDateTime, HashMap<String, PriorityQueue<Flight>>> nestedMap = new HashMap<OffsetDateTime, HashMap<String, PriorityQueue<Flight>>>();
+			nestedMap.put(flight.getDepartureDate(), innerNestedMap);
 			adjMap.put(flight.getDepartureAirport(), nestedMap);
 		} else {
-			HashMap<String, PriorityQueue<Flight>> nestedMap = adjMap.get(flight.getDepartureAirport());
-			if (!nestedMap.containsKey(flight.getArrivalAirport())) {
+			if (!adjMap.get(flight.getDepartureAirport()).containsKey(flight.getDepartureDate())) {
 				PriorityQueue<Flight> pq = new PriorityQueue<Flight>();
 				pq.add(flight);
-				nestedMap.put(flight.getArrivalAirport(), pq);
-				adjMap.put(flight.getDepartureAirport(), nestedMap);
+				HashMap<String, PriorityQueue<Flight>> innerNestedMap = new HashMap<String, PriorityQueue<Flight>>();
+				innerNestedMap.put(flight.getArrivalAirport(), pq);
+				adjMap.get(flight.getDepartureAirport()).put(flight.getDepartureDate(), innerNestedMap);
 			} else {
-				PriorityQueue<Flight> pq = adjMap.get(flight.getDepartureAirport()).get(flight.getArrivalAirport());
-				pq.add(flight);
+				if (!adjMap.get(flight.getDepartureAirport()).get(flight.getDepartureDate()).containsKey(flight.getArrivalAirport())) {
+					PriorityQueue<Flight> pq = new PriorityQueue<Flight>();
+					pq.add(flight);
+					adjMap.get(flight.getDepartureAirport()).get(flight.getDepartureDate()).put(flight.getArrivalAirport(), pq);
+				} else {
+					adjMap.get(flight.getDepartureAirport()).get(flight.getDepartureDate()).get(flight.getArrivalAirport()).add(flight);
+				}
 			}
 		}
 	}
 	
-	public PriorityQueue<Flight> getDirectFlights(String departureAirport, String arrivalAirport) {
-		if (adjMap.containsKey(departureAirport) && adjMap.get(departureAirport).containsKey(arrivalAirport))
-			return adjMap.get(departureAirport).get(arrivalAirport);
+	public PriorityQueue<Flight> getDirectFlights(String departureAirport, String arrivalAirport, OffsetDateTime departureDate) {
+		if (adjMap.containsKey(departureAirport) && adjMap.get(departureAirport).containsKey(departureDate) &&
+				adjMap.get(departureAirport).get(departureDate).containsKey(arrivalAirport))
+			return adjMap.get(departureAirport).get(departureDate).get(arrivalAirport);
 		return null;
 	}
 	
 	// Modified BFS
-	public List<List<PriorityQueue<Flight>>> findPaths(String departureAirport, String arrivalAirport) {
+	public List<List<PriorityQueue<Flight>>> findPaths(String departureAirport, String arrivalAirport, OffsetDateTime departureDate) {
 		List<List<PriorityQueue<Flight>>> flights = new LinkedList<List<PriorityQueue<Flight>>>();
 		
 		// Create a queue which stores
@@ -74,7 +83,7 @@ public class FlightGraph {
 	            
 	            while (it.hasNext()) {
 	            	String curr = it.next();
-	            	PriorityQueue<Flight> pq = getDirectFlights(prev, curr);
+	            	PriorityQueue<Flight> pq = getDirectFlights(prev, curr, departureDate);
 	            	transfers.add(pq);
 	            	prev = curr;
 	            }
@@ -83,15 +92,18 @@ public class FlightGraph {
 	 
 	        // Traverse to all the nodes connected to
 	        // current vertex and push new path to queue
-	        HashMap<String, PriorityQueue<Flight>> lastNode = adjMap.get(last);
-	        if (lastNode != null) {
-	        	for (String airport : lastNode.keySet()) {
-	        		if (!path.contains(airport)) {
-	        			List<String> newpath = new LinkedList<String>(path);
-		                newpath.add(airport);
-		                queue.offer(newpath);
-	        		}
-	        	}
+	        HashMap<OffsetDateTime, HashMap<String, PriorityQueue<Flight>>> lastMap = adjMap.get(last);
+	        if (lastMap != null) {
+	        	HashMap<String, PriorityQueue<Flight>> lastNode = lastMap.get(departureDate);
+		        if (lastNode != null) {
+		        	for (String airport : lastNode.keySet()) {
+		        		if (!path.contains(airport)) {
+		        			List<String> newpath = new LinkedList<String>(path);
+			                newpath.add(airport);
+			                queue.offer(newpath);
+		        		}
+		        	}
+		        }
 	        }
 	    }
 	    return flights;

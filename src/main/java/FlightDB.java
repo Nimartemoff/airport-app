@@ -11,7 +11,7 @@ public class FlightDB {
 		FlightGraph flightGraph = new FlightGraph();
 		try {
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
+				Class.forName("com.mysql.cj.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -24,9 +24,9 @@ public class FlightDB {
 	        	int id = results.getInt(1);
 	        	String departureAirport = results.getString(2);
 	        	String arrivalAirport = results.getString(3);
-	        	//OffsetDateTime departureDate = results.getObject(4, OffsetDateTime.class);
+	        	OffsetDateTime departureDate = results.getObject(4, OffsetDateTime.class);
 	        	BigDecimal cost = results.getBigDecimal(5);
-	        	flightGraph.addFlight(new Flight(id, departureAirport, arrivalAirport, OffsetDateTime.now(), cost));
+	        	flightGraph.addFlight(new Flight(id, departureAirport, arrivalAirport, departureDate, cost));
 	    	}
 	    	connection.close();
 		} catch (SQLException e) {
